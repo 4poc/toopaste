@@ -1,8 +1,9 @@
 require 'rubygems'
+require 'bundler'
 require 'sinatra'
-
-set :run => false
-
 require 'toopaste'
+
+Bundler.require
+set :run => false
 
 run Sinatra::Application
