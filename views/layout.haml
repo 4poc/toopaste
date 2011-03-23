@@ -17,6 +17,14 @@
           $('#switch-theme').submit();
         });
         $('#switch-theme input[type="submit"]').hide();
+        $('.snippet form').submit(function() {
+          var snippet = $('#snippet_body'),
+              maxlength = 65535;
+          if(snippet.val().length > maxlength) {
+            alert('Your code snippet is too large. It has been truncated to '+maxlength+' characters!');
+            snippet.val(snippet.val().substr(0, maxlength));
+          }
+        });
       });
   %body
     #wrapper.container_12
