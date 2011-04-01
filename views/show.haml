@@ -17,7 +17,7 @@
         & by #{@snippet.author}
 
       %form{ :action => '/switch_theme', :method => 'POST', :id => 'switch-theme' }
-        %input{ :type => 'hidden', :name => 'snippet_id', :value => @snippet.id}
+        %input{ :type => 'hidden', :name => 'snippet_random_id', :value => @snippet.random_id}
         %select{ :name => 'theme' }
           - THEMES.each do |theme|
             - if @active_theme == theme
