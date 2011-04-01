@@ -7,6 +7,7 @@ require 'dm-core'
 require 'dm-validations'
 require 'dm-timestamps'
 require 'dm-migrations'
+require 'dm-types'
 require 'haml'
 require 'sass'
 require 'uv'
@@ -68,11 +69,12 @@ DataMapper.setup(:default, ENV['DATABASE_URL'] || "sqlite3://#{Dir.pwd}/toopaste
 class Snippet
   include DataMapper::Resource
 
-  property :id,         Serial
+  property :random_id,  String,    :key => true
   property :title,      String
   property :language,   String
-  property :author,     String, :required => false
-  property :body,       Text,   :required => true
+  property :author,     String
+  property :visibility, Enum[:public, :private], :default => :public
+  property :body,       Text,      :required => true
   property :delete_at,  DateTime
   property :created_at, DateTime
   property :updated_at, DateTime
@@ -81,7 +83,7 @@ class Snippet
     if not @title.empty?
       @title
     else
-      "##{@id}"
+      "##{@random_id}"
     end
   end
 
@@ -116,7 +118,7 @@ end
 # new
 get '/' do
   @preferred_languages = settings.preferred_languages
-  @snippets = Snippet.last(settings.snippets_in_sidebar_count)
+  @snippets = Snippet.all(:visibility => 'public', :order => [:created_at.desc], :limit => settings.snippets_in_sidebar_count)
   if session.has_key? :author
     @author = session[:author]
   end
@@ -133,12 +135,18 @@ post '/' do
 
   delete_at = Time.now.shift(params[:snippet_delete_at].to_i, params[:snippet_delete_at_unit].to_sym) unless params[:snippet_delete_at].empty?
   session[:author] = params[:snippet_author]
+  visibility = params[:snippet_visibility] || 'public'
+
+  o = [('a'..'z'),('0'..'9')].map{|i| i.to_a}.flatten
+  begin random_id = (0..3).map{ o[rand(o.length)] }.join end until not Snippet.get(random_id)
 
   @snippet = Snippet.new(:title => params[:snippet_title],
                          :language => language,
                          :body  => params[:snippet_body],
                          :author => params[:snippet_author],
-                         :delete_at => delete_at
+                         :visibility => visibility,
+                         :delete_at => delete_at,
+                         :random_id => random_id
                         )
 
   if @snippet.save
@@ -150,14 +158,14 @@ post '/' do
       if params[:snippet_title] and not params[:snippet_title].empty?
         announce += ": #{params[:snippet_title]}"
       end
-      announce += " #{base_url}/#{@snippet.id}"
+      announce += " #{base_url}/#{@snippet.random_id}"
 
       drb = DRbObject.new_with_uri(settings.announce_irc[:uri])
-      id = drb.delegate(nil, "remote login #{settings.announce_irc[:user]} #{settings.announce_irc[:pass]}")[:return]
-      drb.delegate(id, "dispatch say #{settings.announce_irc[:channel]} #{announce}")
+      random_id = drb.delegate(nil, "remote login #{settings.announce_irc[:user]} #{settings.announce_irc[:pass]}")[:return]
+      drb.delegate(random_id, "dispatch say #{settings.announce_irc[:channel]} #{announce}")
     end
 
-    redirect "/#{@snippet.id}"
+    redirect "/#{@snippet.random_id}"
   else
     flash[:error] = "<strong>Uh-oh, something went wrong:</strong><br />"
     @snippet.errors.each { |e| flash[:error] += e.to_s + ".<br />" }
@@ -166,12 +174,12 @@ post '/' do
 end
 
 # show
-get %r{/(raw|download)?/?(\d+)} do # '/:id' do
+get %r{/(raw|download)?/?([a-z0-9]+)} do # '/:random_id' do
   raw = true if params[:captures][0] and params[:captures][0] == 'raw'
   download = true if params[:captures][0] and params[:captures][0] == 'download'
-  id = params[:captures][1]
+  random_id = params[:captures][1]
 
-  @snippet = Snippet.get(id)
+  @snippet = Snippet.get(random_id)
   if @snippet
     delete_at = Time.parse(@snippet.delete_at.to_s)
     if delete_at.past? and not @snippet.delete_at.nil?
@@ -211,17 +219,17 @@ post '/switch_theme' do
   if THEMES.include? params[:theme]
     session[:active_theme] = params[:theme]
   end
-  redirect to("/#{params[:snippet_id]}")
+  redirect to("/#{params[:snippet_random_id]}")
 end
 
 # delete snippet
-delete '/:id' do
+delete '/:random_id' do
   protected!
-  snippet = Snippet.get(params[:id])
+  snippet = Snippet.get(params[:random_id])
   if snippet.destroy
-    "##{params[:id]} deleted, yo."
+    "snippet ##{params[:random_id]} won't be a problem anymore, sir."
   else
-    raise not_found
+    "snippet ##{params[:random_id]} is in another castle."
   end
 end
 

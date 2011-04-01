@@ -3,9 +3,9 @@
     %h2
       & Snippet: #{@snippet.title}
     #meta
-      %a{ :href=> "/raw/#{@snippet.id}/#{@snippet.filename}" } raw
+      %a{ :href=> "/raw/#{@snippet.random_id}/#{@snippet.filename}" } raw
       &middot;
-      %a{ :href=> "/download/#{@snippet.id}/#{@snippet.filename}" } download
+      %a{ :href=> "/download/#{@snippet.random_id}/#{@snippet.filename}" } download
       &middot;
       %a{ :href=> '#', :id => 'toggle-lines' } toggle line numbers
     #content{ :class => 'sbody' }

@@ -100,7 +100,7 @@ form {
         color: $black;
     }
 
-    input[type="text"] {
+    input#new[type="text"] {
         width: 250px;
     }
 
@@ -108,7 +108,7 @@ form {
         width: 50px;
     }
 
-    input[type="submit"] {
+    input#new[type="submit"] {
         width: 200px;
         margin-top: 15px;
     }
@@ -144,6 +144,7 @@ form {
     background: $background;
     color: $normal;
     padding: 10px;
+    height: 25px;
 }
 
 #switch-theme {

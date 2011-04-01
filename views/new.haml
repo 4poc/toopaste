@@ -4,7 +4,7 @@
     %ul
       - @snippets.each do |snippet|
         %li
-          %a{ :href => snippet.id, :title => snippet.title }
+          %a{ :href => snippet.random_id, :title => snippet.title }
             & #{snippet.title}
             - if LANGUAGES.has_key? snippet.language
               & (#{LANGUAGES[snippet.language]})
@@ -37,8 +37,10 @@
       %label{ :for => 'snippet_body' } Content:
       %textarea{ :name => 'snippet_body', :id => 'snippet_body', :rows => 20 }
       %br
+      %input{ :type => 'checkbox', :name => 'snippet_visibility', :value => 'private' }
+      Don't list
       - if settings.announce_irc[:active]
         %input{ :type => 'checkbox', :name => 'announce_irc', :value => '1' }
-        & Announce this snippet in #{settings.announce_irc[:channel]}
+        & Announce in #{settings.announce_irc[:channel]}
         %br
-      %input{ :type => 'submit', :value => 'Save' }
+      %input{ :type => 'submit', :value => 'Save', :id => 'new' }
