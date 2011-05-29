@@ -175,7 +175,7 @@ end
 
 # show
 get %r{/(raw|download)?/?([a-z0-9]+)} do # '/:random_id' do
-  raw = true if params[:captures][0] and params[:captures][0] == 'raw'
+  raw = true if (params[:captures][0] and params[:captures][0] == 'raw') or request.user_agent.match /^curl\// 
   download = true if params[:captures][0] and params[:captures][0] == 'download'
   random_id = params[:captures][1]
 
