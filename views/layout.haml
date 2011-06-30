@@ -3,6 +3,10 @@
   %head
     %title
       &= @title || settings.pagetitle
+    %meta{ :name => 'viewport', :content => 'width=device-width, initial-scale=1.0' }
+    /[if lte IE 9]
+      %link{ :rel => 'stylesheet', :href => '/_ie.css', :media => 'screen' }
+    %script{ :src => '/css3-mediaqueries.js' }
     %link{ :rel => 'stylesheet', :href => '/stylesheet.css' }
     - if @active_theme
       %link{ :rel => 'stylesheet', :href => "/ultraviolet/css/#{@active_theme}.css" }
@@ -27,13 +31,14 @@
         });
       });
   %body
-    #wrapper.container_12
-      - if flash[:error]
-        #error.grid_12
-          = flash[:error]
-      %header.grid_12
-        %h1
-          %a{ :href => '/' } #{settings.pagetitle}
-      = yield
+    #wrapper{ :class => 'container' }
+      .row
+        - if flash[:error]
+          #error{ :class => 'twelvecol, last' }
+            = flash[:error]
+        %header{ :class => 'twelvecol, last' }
+          %h1
+            %a{ :href => '/' } #{settings.pagetitle}
+        = yield
   %a{ :href => 'https://github.com/jessor/toopaste', :id => 'github' }
     %img{ :src => '/fork_me_on_github.png' }

@@ -1,4 +1,4 @@
-#sidebar.grid_3
+#sidebar{ :class => 'threecol' }
   %h2 Recent Snippets
   - if @snippets
     %ul
@@ -8,7 +8,7 @@
             & #{snippet.title}
             - if LANGUAGES.has_key? snippet.language
               & (#{LANGUAGES[snippet.language]})
-#content.grid_9
+#content{ :class => 'ninecol, last' }
   .snippet
     %h2 Paste a new code snippet
     %form{ :action => '/', :method => 'POST' }

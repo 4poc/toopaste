@@ -1,2 +1,4 @@
 *.db
-public/
+.sass-cache/
+public/images/
+public/ultraviolet/
